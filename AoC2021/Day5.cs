@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -55,9 +56,41 @@ namespace AoC2021
         public void Part2()
         {
             var dayInput = DayInput();
-        }
+            var stringReader = new StringReader(dayInput);
+            string? line;
+            var field = new Dictionary<(int, int), int>();
+            while ((line = stringReader.ReadLine()) != null)
+            {
+                var numbers = line.Split(" -> ").Select(coord =>
+                {
+                    var coords = coord.Split(',').Select(int.Parse).ToArray();
+                    return (coords[0], coords[1]);
+                }).ToArray();
+                var (x1, y1) = numbers[0];
+                var (x2, y2) = numbers[1];
 
-        private const string TestInput = @"0,9 -> 5,9
+                var steps = Math.Max(Math.Abs(x2 - x1), Math.Abs(y2 - y1));
+                var dx = (x2 - x1) / steps;
+                var dy = (y2 - y1) / steps;
+                for (var i = 0; i <= steps; i++)
+                {
+                    var x = x1 + i * dx;
+                    var y = y1 + i * dy;
+                    if (field.TryGetValue((x, y), out var count))
+                    {
+                        field[(x, y)] = count + 1;
+                    }
+                    else
+                    {
+                        field[(x, y)] = 1;
+                    }
+                }
+            }
+
+            var points = field.Count(kvp => kvp.Value > 1);
+            TestContext.WriteLine($"Points: {points}");        }
+
+        private static string TestInput() => @"0,9 -> 5,9
 8,0 -> 0,8
 9,4 -> 3,4
 2,2 -> 2,1
